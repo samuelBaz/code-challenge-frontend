@@ -1,0 +1,32 @@
+.layout-main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 84px);
+    justify-content: space-between;
+    padding: 81px 0 0 0;
+    transition: margin-left var(--layout-section-transition-duration);
+}
+
+.layout-main {
+    height: calc(100vh - 84px);
+}
+
+.list-box {
+    margin-top: 8px;
+    border: none !important; 
+} 
+
+.p-listbox-list-container {
+    max-height: calc(100vh - 180px) !important;
+
+    .p-listbox-option-selected {
+        background-color: #F3F5F8 !important;
+        color: #0E121B;
+    }
+}
+
+.p-inputtext-lg {
+    font-size: 24px !important;
+    font-family: sans-serif !important;
+}
+
