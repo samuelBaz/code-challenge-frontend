@@ -48,13 +48,15 @@ import { ConfirmationService, MessageService } from 'primeng/api';
         </div>
         <div class="col-span-2 col-start-2 ... bg-white border-x border-x-neutral-200 pt-4 px-4">
           <div *ngIf="noteSelected() && !newNoteFlag" class="flex flex-col">
-            <div class="text-surface-900 dark:text-surface-0 text-3xl font-sans font-bold mb-4" (click)="setEditTitle()">{{noteSelected()!.title}}</div>
+            <div *ngIf="!editTitle" class="text-surface-900 dark:text-surface-0 text-3xl font-sans font-bold mb-4" (click)="setEditTitle()">{{editTitleText}}</div>
+            <input *ngIf="editTitle" pInputText [(ngModel)]="editTitleText" class="text-6xl font-sans font-bold mb-2" type="text"  pSize="large" (keydown.enter)="onEnterPressedTitle()"/>
             <div class="grid grid-cols-6">
               <div class="col-span-1 col-start-1 ...">
                 <p-button icon="pi pi-tag" class="font-sans text-neutral-700" label="Tags" variant="text" severity="secondary" />
               </div>
               <div class="col-span-5 col-start-2 ... flex items-center">
-                <span class="text-neutral-950 text-base font-sans font-normal">{{noteSelected()!.tags.join(", ")}}</span>
+                <span *ngIf="!editTags" class="text-neutral-950 text-base font-sans font-normal" (click)="setEditTags()">{{editTagsText.length === 0 ? 'Add tags separated by commas (e.g. Work, Planning)' : editTagsText}}</span>
+                <input *ngIf="editTags" pInputText [(ngModel)]="editTagsText" class="w-full text-6xl font-sans font-bold" type="text" (keydown.enter)="onEnterPressedTags()"/>
               </div>
             </div>
             <div class="grid grid-cols-6">
@@ -119,7 +121,7 @@ export class AllNotes {
   noteSelected = signal<Note | null>(null);
   text: string = ""
   editTitle: boolean = false;
-  editTitleText: string = "Enter a title..."
+  editTitleText: string = ""
   editTags: boolean = false
   editTagsText: string = ""
 
@@ -136,6 +138,8 @@ export class AllNotes {
         this.text = this.noteSelected()!.content
         this.newNoteFlag = false
         this.editTitle = false
+        this.editTitleText = this.noteSelected()!.title
+        this.editTagsText = this.noteSelected()!.tags.join(", ")
       }
     });
   }
@@ -156,7 +160,13 @@ export class AllNotes {
   saveNote(note: Note) {
     const noteUpdate  = {...note}
     noteUpdate.content = this.text
+    noteUpdate.title = this.editTitleText
+    noteUpdate.tags = this.editTagsText.split(", ")
     this.store.dispatch(updateNote({ id: note.id, note: noteUpdate}));
+    this.newNoteFlag = false
+    this.editTitle = false
+    this.editTags = false
+    this.noteSelected.set(null)
   }
 
   saveNewNote() {
@@ -165,7 +175,7 @@ export class AllNotes {
     this.newNoteFlag = false
     this.editTitle = false
     this.editTags = false
-    this.noteSelected.set(note)
+    this.noteSelected.set(null)
   }
 
   cancel() {
@@ -193,6 +203,7 @@ export class AllNotes {
   newNote() {
     this.newNoteFlag = true;
     this.noteSelected.set(null)
+    this.editTitleText = "Enter a title..."
     this.text = "Start typing your note here…"
   }
 
@@ -253,7 +264,6 @@ export class AllNotes {
   setEditTitle(): void {
     this.editTitle = true;
   }
-
   
   setEditTags(): void {
     this.editTags = true;
